@@ -3,21 +3,28 @@ import axios from "axios";
 import { useState } from "react";
 import jwt_decode from "jwt-decode";
 
+
 function App() {
   const [user, setUser] = useState(null);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(false);
   const [success, setSuccess] = useState(false);
+  // const [isAuth, /*setIsAuth*/] = useState(true);
 
   const refreshToken = async () => {
     try {
-      const res = await axios.post("/refresh", { token: user.refreshToken });
+      const res = await axios.post("http://localhost:5000/api/refresh", { token: user.refreshToken });
       setUser({
         ...user,
         accessToken: res.data.accessToken,
         refreshToken: res.data.refreshToken,
-      });
+      })
+      
+        const token = res.data.accessToken;
+        localStorage.setItem('accessToken', token);
+        console.log(token)
+      
       return res.data;
     } catch (err) {
       console.log(err);
@@ -44,7 +51,7 @@ function App() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:5000/api/login", { username, password });
+      const res = await axios.post("http://localhost:5000/api/login/", { username, password });
       setUser(res.data);
     } catch (err) {
       console.log(err);
@@ -64,7 +71,9 @@ function App() {
     }
   };
 
+  
   return (
+    
     <div className="container">
       {user ? (
         <div className="home">
@@ -74,11 +83,12 @@ function App() {
           </span>
           <span>Delete Users:</span>
           <button className="deleteButton" onClick={() => handleDelete(1)}>
-            Delete John
+            Delete Admin
           </button>
           <button className="deleteButton" onClick={() => handleDelete(2)}>
-            Delete Jane
+            Delete {user.username}
           </button>
+          
           {error && (
             <span className="error">
               You are not allowed to delete this user!
@@ -111,6 +121,7 @@ function App() {
         </div>
       )}
     </div>
+    
   );
 }
 
